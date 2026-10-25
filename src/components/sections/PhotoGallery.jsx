@@ -1,117 +1,138 @@
 // src/components/sections/PhotoGallery.jsx
 import React, { useState } from 'react';
-import { FanCrest, OrnateDivider } from '../common/DecorativeSVG';
-import { X, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { OrnateDivider } from '../common/DecorativeSVG';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { WEDDING_DATA } from '../../data/wedding';
-import { I18N } from '../../data/i18n';
 
 /**
- * PHOTO GALLERY SECTION (កម្រងរូបភាពអនុស្សាវរីយ៍ - ពណ៌ផ្កាឈូកស្ដើង)
- * Masonry grid layout with lightbox full-screen modal and swipe/arrow navigation.
+ * PHOTO GALLERY & LIGHTBOX SECTION (វិចិត្រសាល តាមវិដេអូ)
+ * Features:
+ * - Title "វិចិត្រសាល"
+ * - Featured top portrait photo with arched golden border
+ * - 2-column thumbnail grid
+ * - Interactive Lightbox modal with:
+ *   - Close button (X)
+ *   - Prev / Next navigation arrows
+ *   - Photo index indicator "1 / 12"
  */
-export default function PhotoGallery({ currentLang = 'km' }) {
-  const t = I18N[currentLang];
+export default function PhotoGallery() {
   const { gallery } = WEDDING_DATA;
   const [activePhotoIdx, setActivePhotoIdx] = useState(null);
 
-  const openLightbox = (index) => setActivePhotoIdx(index);
-  const closeLightbox = () => setActivePhotoIdx(null);
+  const openLightbox = (index) => {
+    setActivePhotoIdx(index);
+  };
 
-  const prevPhoto = (e) => {
-    e.stopPropagation();
-    setActivePhotoIdx((prev) => (prev > 0 ? prev - 1 : gallery.length - 1));
+  const closeLightbox = () => {
+    setActivePhotoIdx(null);
   };
 
   const nextPhoto = (e) => {
     e.stopPropagation();
-    setActivePhotoIdx((prev) => (prev < gallery.length - 1 ? prev + 1 : 0));
+    setActivePhotoIdx((prev) => (prev + 1) % gallery.length);
+  };
+
+  const prevPhoto = (e) => {
+    e.stopPropagation();
+    setActivePhotoIdx((prev) => (prev - 1 + gallery.length) % gallery.length);
   };
 
   return (
-    <section className="relative py-24 px-4 md:px-8 bg-[#fff5f8] text-[#4a2430] overflow-hidden">
-      <div className="max-w-6xl mx-auto flex flex-col items-center">
-        {/* Section Heading */}
-        <FanCrest className="w-14 h-9 mb-2" />
-        <h2 className="font-moul text-2xl md:text-3xl gold-foil-text text-center">
-          {t.galleryTitle}
+    <section id="gallery" className="relative py-12 px-4 md:px-8 select-none">
+      {/* Title */}
+      <div className="text-center mb-6">
+        <h2 className="font-moul text-xl md:text-2xl gold-foil-text mb-1">
+          វិចិត្រសាល
         </h2>
-        <p className="font-kantumruy text-xs md:text-sm text-[#7a3246] mt-1 text-center font-semibold">
-          {t.gallerySubtitle}
-        </p>
-        <OrnateDivider className="w-48 h-4 my-2 opacity-90" />
+        <OrnateDivider className="w-44 mx-auto" />
+      </div>
 
-        {/* Masonry Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mt-10 w-full">
-          {gallery.map((photo, index) => (
+      <div className="max-w-md mx-auto space-y-4">
+        {/* Featured Main Photo (Top Arched Frame) */}
+        {gallery.length > 0 && (
+          <div
+            onClick={() => openLightbox(0)}
+            className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden border-2 border-[#d4af37] shadow-[0_10px_30px_rgba(90,30,20,0.3)] cursor-pointer group bg-[#fbf1ec]"
+          >
+            <img
+              src={gallery[0].url}
+              alt={gallery[0].title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            {/* Corner Decorative Vines */}
+            <span className="absolute top-2 left-2 text-base">🌿</span>
+            <span className="absolute top-2 right-2 text-base">🌿</span>
+          </div>
+        )}
+
+        {/* 2-Column Grid for Remaining Photos */}
+        <div className="grid grid-cols-2 gap-3">
+          {gallery.slice(1).map((item, idx) => (
             <div
-              key={photo.id}
-              onClick={() => openLightbox(index)}
-              className="relative rounded-2xl overflow-hidden aspect-[3/4] pink-anime-card cursor-pointer group shadow-[0_10px_25px_rgba(235,160,180,0.22)] p-1.5 bg-white border border-[#e8aebb]"
+              key={item.id}
+              onClick={() => openLightbox(idx + 1)}
+              className="relative aspect-square rounded-2xl overflow-hidden border border-[#d4af37]/60 shadow-[0_4px_14px_rgba(90,30,20,0.2)] cursor-pointer group bg-[#fbf1ec]"
             >
-              <div className="w-full h-full rounded-xl overflow-hidden relative">
-                <img
-                  src={photo.url}
-                  alt={photo.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-[#4a2430]/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="p-3 rounded-full bg-white/90 border border-[#d4af37] text-[#7a3246] transform scale-75 group-hover:scale-100 transition-transform shadow-md">
-                    <Eye className="w-5 h-5 text-[#c59728]" />
-                  </span>
-                </div>
-              </div>
+              <img
+                src={item.url}
+                alt={item.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Full-Screen Lightbox Modal */}
+      {/* FULLSCREEN LIGHTBOX MODAL (ដូចក្នុងវិដេអូ 00:36) */}
       {activePhotoIdx !== null && (
         <div
-          role="dialog"
-          aria-modal="true"
           onClick={closeLightbox}
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 backdrop-blur-md"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300"
         >
-          {/* Close Button */}
+          {/* Close Button (X) */}
           <button
             onClick={closeLightbox}
+            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white hover:bg-white/40 transition-colors z-20"
             aria-label="Close"
-            className="absolute top-5 right-5 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-50"
           >
             <X className="w-6 h-6" />
           </button>
 
-          {/* Previous Arrow */}
+          {/* Navigation: Prev Arrow */}
           <button
             onClick={prevPhoto}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white hover:bg-white/40 transition-colors z-20"
             aria-label="Previous"
-            className="absolute left-4 p-3 rounded-full bg-black/50 border border-white/20 text-white hover:border-[#d4af37] transition-all z-50"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
 
-          {/* Image */}
+          {/* Navigation: Next Arrow */}
+          <button
+            onClick={nextPhoto}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white hover:bg-white/40 transition-colors z-20"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Center Image */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-4xl max-h-[85vh] rounded-lg overflow-hidden border border-[#d4af37]/40 shadow-2xl"
+            className="relative max-w-sm md:max-w-md max-h-[80vh] flex flex-col items-center"
           >
             <img
               src={gallery[activePhotoIdx].url}
               alt={gallery[activePhotoIdx].title}
-              className="max-h-[85vh] w-auto object-contain"
+              className="max-w-full max-h-[72vh] object-contain rounded-2xl border-2 border-[#d4af37]/80 shadow-[0_15px_40px_rgba(0,0,0,0.8)]"
             />
-          </div>
 
-          {/* Next Arrow */}
-          <button
-            onClick={nextPhoto}
-            aria-label="Next"
-            className="absolute right-4 p-3 rounded-full bg-black/50 border border-white/20 text-white hover:border-[#d4af37] transition-all z-50"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
+            {/* Photo Counter (e.g. "1 / 12") */}
+            <p className="mt-3 font-cormorant text-base md:text-lg text-white/90 tracking-widest font-semibold">
+              {activePhotoIdx + 1} / {gallery.length}
+            </p>
+          </div>
         </div>
       )}
     </section>

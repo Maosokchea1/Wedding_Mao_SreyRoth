@@ -1,109 +1,63 @@
 // src/components/sections/VenueSection.jsx
 import React from 'react';
-import { FanCrest, OrnateDivider, CornerFlourish } from '../common/DecorativeSVG';
-import { Navigation, CalendarPlus } from 'lucide-react';
+import { GoldenBannerButton, OrnateDivider } from '../common/DecorativeSVG';
+import { MapPin, ExternalLink } from 'lucide-react';
 import { WEDDING_DATA } from '../../data/wedding';
-import { I18N } from '../../data/i18n';
 
 /**
- * VENUE SECTION (ទីតាំងប្រារព្ធពិធី - ពណ៌ផ្កាឈូកស្ដើង & ក្បាច់ខ្មែរ)
- * Decorative crest, venue name, embedded Google Maps iframe,
- * Direct Google Maps button and Save to Calendar (.ics) generation.
+ * VENUE & MAP SECTION (ទីតាំងកម្មវិធី តាមវិដេអូ)
+ * Features:
+ * - Title "ទីតាំងកម្មវិធី"
+ * - Subtitle "ពិធីមង្គលការ និង ពិសារភោជនាហារ"
+ * - Detailed Khmer address
+ * - Embedded Google Map
+ * - Ornate "មើលទីតាំង" button
  */
-export default function VenueSection({ currentLang = 'km' }) {
-  const t = I18N[currentLang];
-  const { venue, groom, bride } = WEDDING_DATA;
+export default function VenueSection() {
+  const { venue } = WEDDING_DATA;
 
-  // Generate .ics calendar event file download
-  const handleSaveToCalendar = () => {
-    const startDate = "20261128T070000";
-    const endDate = "20261128T220000";
-    const title = `Wedding of ${groom.englishName} & ${bride.englishName}`;
-    const description = `The Wedding Invitation of ${groom.khmerName} and ${bride.khmerName}. Reception at ${venue.nameEnglish}.`;
-    const location = `${venue.nameEnglish}, ${venue.addressEnglish}`;
-
-    const icsContent = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Khmer Wedding Invitation//EN",
-      "BEGIN:VEVENT",
-      `SUMMARY:${title}`,
-      `DESCRIPTION:${description}`,
-      `LOCATION:${location}`,
-      `DTSTART:${startDate}`,
-      `DTEND:${endDate}`,
-      "STATUS:CONFIRMED",
-      "END:VEVENT",
-      "END:VCALENDAR"
-    ].join("\r\n");
-
-    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.setAttribute("download", `wedding-${groom.shortEnglish}-${bride.shortEnglish}.ics`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleOpenMap = () => {
+    window.open(venue.googleMapsUrl, '_blank');
   };
 
   return (
-    <section className="relative py-24 px-4 md:px-8 bg-[#fff0f4] text-[#4a2430] overflow-hidden">
-      <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-        {/* Khmer Temple Crest */}
-        <FanCrest className="w-16 h-10 mb-2" />
-        <h2 className="font-moul text-2xl md:text-3xl gold-foil-text">
-          {t.venueTitle}
-        </h2>
-        <OrnateDivider className="w-48 h-4 my-2 opacity-90" />
+    <section id="venue" className="relative py-12 px-4 md:px-8 text-center select-none">
+      {/* Title */}
+      <h2 className="font-moul text-xl md:text-2xl gold-foil-text mb-1">
+        ទីតាំងកម្មវិធី
+      </h2>
+      <p className="font-moul text-xs md:text-sm text-[#5c2317] mb-2">
+        {venue.titleKhmer}
+      </p>
 
-        {/* Venue Information Card */}
-        <div className="w-full pink-anime-card rounded-2xl p-6 md:p-8 mt-8 relative">
-          <CornerFlourish position="top-left" className="absolute top-2 left-2 w-8 h-8 opacity-80" />
-          <CornerFlourish position="top-right" className="absolute top-2 right-2 w-8 h-8 opacity-80" />
+      {/* Address */}
+      <div className="max-w-md mx-auto mb-4 px-3 flex items-center justify-center gap-1.5 text-xs md:text-sm text-[#4a2118]">
+        <MapPin className="w-4 h-4 text-[#8c3a38] shrink-0" />
+        <span className="font-kantumruy">{venue.addressKhmer}</span>
+      </div>
 
-          <h3 className="font-moul text-lg md:text-xl gold-foil-subtle mb-2">
-            {currentLang === 'km' ? venue.nameKhmer : venue.nameEnglish}
-          </h3>
-          <p className="font-kantumruy text-sm md:text-base text-[#683745] max-w-xl mx-auto leading-relaxed font-medium">
-            {currentLang === 'km' ? venue.addressKhmer : venue.addressEnglish}
-          </p>
+      <OrnateDivider className="w-44 mx-auto mb-6" />
 
-          {/* Action Buttons: Open Maps & Save to Calendar (.ics) */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            <a
-              href={venue.googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#d4af37] via-[#f7cad4] to-[#c59728] text-[#4a2430] font-kantumruy font-bold text-xs md:text-sm shadow-md hover:scale-105 active:scale-95 transition-all"
-            >
-              <Navigation className="w-4 h-4 text-[#4a2430]" />
-              <span>{t.openGoogleMaps}</span>
-            </a>
-
-            <button
-              onClick={handleSaveToCalendar}
-              type="button"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white border border-[#d4af37]/60 text-[#7a3246] font-kantumruy font-bold text-xs md:text-sm hover:border-[#d4af37] hover:scale-105 active:scale-95 transition-all shadow-sm"
-            >
-              <CalendarPlus className="w-4 h-4 text-[#c59728]" />
-              <span>{t.saveToCalendar}</span>
-            </button>
-          </div>
-
-          {/* Embedded Google Maps */}
-          <div className="mt-8 w-full aspect-[16/9] md:aspect-[21/9] rounded-xl overflow-hidden border border-[#d4af37]/45 shadow-sm">
-            <iframe
-              title="Wedding Venue Google Maps"
-              src={venue.googleMapsEmbed}
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
+      {/* Embedded Map Card */}
+      <div className="max-w-md mx-auto rounded-2xl overflow-hidden border-2 border-[#d4af37]/60 shadow-[0_8px_25px_rgba(90,30,20,0.25)] bg-[#fffdfa] p-1.5">
+        <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden">
+          <iframe
+            title="Wedding Venue Location Map"
+            src={venue.googleMapsEmbed}
+            className="w-full h-full border-0"
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
         </div>
+      </div>
+
+      {/* Ornate "មើលទីតាំង" Button */}
+      <div className="mt-5">
+        <GoldenBannerButton onClick={handleOpenMap} variant="gold">
+          <span>មើលទីតាំង</span>
+          <ExternalLink className="w-4 h-4 ml-1" />
+        </GoldenBannerButton>
       </div>
     </section>
   );
